@@ -29,6 +29,7 @@
 #include "nav_msgs/Odometry.h"
 #include "std_srvs/Trigger.h"
 #include "std_msgs/Header.h"
+#include "std_msgs/Bool.h"
 #include "geometry_msgs/Vector3Stamped.h"
 #include "geometry_msgs/PoseWithCovarianceStamped.h"
 #include "diagnostic_msgs/DiagnosticArray.h"
@@ -83,6 +84,7 @@ public:
   int baudrate_;
   bool initialized_;
   bool log_enabled_;
+  bool heading_lock_ = false;
 
   std::string frame_id_;
 

@@ -47,6 +47,7 @@ void InertialSenseROS::configure_data_streams()
   if (INS_.enabled)
   {
     INS_.pub = nh_.advertise<nav_msgs::Odometry>("ins", 1);
+    INS_.pub2 = nh_.advertise<std_msgs::Bool>("gnss_heading", 1);
     SET_CALLBACK(DID_INS_1, ins_1_t, INS1_callback, 5);
     SET_CALLBACK(DID_INS_2, ins_2_t, INS2_callback, 5);
     SET_CALLBACK(DID_DUAL_IMU, dual_imu_t, IMU_callback, 1);
@@ -342,6 +343,21 @@ void InertialSenseROS::INS1_callback(const ins_1_t * const msg)
     odom_msg.pose.pose.position.z = -msg->ned[2];
   }
 
+  if((msg->insStatus & INS_STATUS_GPS_AIDING_HEADING) != 0 && !heading_lock_) { // True if heading aided by gps
+    // Heading has been locked
+    heading_lock_ = true;
+
+    std_msgs::Bool msg_out;
+    msg_out.data = true;
+    INS_.pub2.publish(msg_out);
+  } else if((msg->insStatus & INS_STATUS_GPS_AIDING_HEADING) == 0 && heading_lock_) {
+    // Heading lock has been lost
+    heading_lock_ = false;
+
+    std_msgs::Bool msg_out;
+    msg_out.data = false;
+    INS_.pub2.publish(msg_out);
+  }
 }
 
 //void InertialSenseROS::INS_variance_callback(const inl2_variance_t * const msg)
