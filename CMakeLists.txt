@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   diagnostic_msgs
   message_generation
   tf
+  dynamis_common_msgs
 )
 find_package(Threads)
 

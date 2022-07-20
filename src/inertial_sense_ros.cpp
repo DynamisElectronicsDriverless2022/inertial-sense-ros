@@ -46,7 +46,7 @@ void InertialSenseROS::configure_data_streams()
   nh_private_.param<bool>("stream_INS", INS_.enabled, true);
   if (INS_.enabled)
   {
-    INS_.pub = nh_.advertise<nav_msgs::Odometry>("ins", 1);
+    INS_.pub = nh_.advertise<dynamis_common_msgs::State>("/ins", 1);
     INS_.pub2 = nh_.advertise<std_msgs::Bool>("gnss_heading", 1);
     SET_CALLBACK(DID_INS_1, ins_1_t, INS1_callback, 5);
     SET_CALLBACK(DID_INS_2, ins_2_t, INS2_callback, 5);
@@ -330,6 +330,7 @@ void InertialSenseROS::set_flash_config(std::string param_name, uint32_t offset,
 void InertialSenseROS::INS1_callback(const ins_1_t * const msg)
 {
   odom_msg.header.frame_id = frame_id_;
+  /*
   if (LTCF == NED)
   {
     odom_msg.pose.pose.position.x = msg->ned[0];
@@ -342,6 +343,7 @@ void InertialSenseROS::INS1_callback(const ins_1_t * const msg)
     odom_msg.pose.pose.position.y = msg->ned[0];
     odom_msg.pose.pose.position.z = -msg->ned[2];
   }
+  */
 
   if((msg->insStatus & INS_STATUS_GPS_AIDING_HEADING) != 0 && !heading_lock_) { // True if heading aided by gps
     // Heading has been locked
@@ -398,9 +400,10 @@ void InertialSenseROS::INS2_callback(const ins_2_t * const msg)
     return;
   }
 
-  odom_msg.header.stamp = ros_time_from_week_and_tow(msg->week, msg->timeOfWeek);
-  odom_msg.header.frame_id = frame_id_;
+  odom_msg.header.stamp = ros::Time::now();
+  odom_msg.header.frame_id = "base_footprint";
 
+  /*
   if (LTCF == NED)
   {
     odom_msg.pose.pose.orientation.w = msg->qn2b[0];
@@ -431,8 +434,6 @@ void InertialSenseROS::INS2_callback(const ins_2_t * const msg)
     odom_msg.pose.pose.orientation.z = q_enu2b[3];
   }
 
-  odom_msg.twist.twist.linear.x = msg->uvw[0];
-  odom_msg.twist.twist.linear.y = msg->uvw[1];
   odom_msg.twist.twist.linear.z = msg->uvw[2];
 
   lla_[0] = msg->lla[0];
@@ -449,8 +450,19 @@ void InertialSenseROS::INS2_callback(const ins_2_t * const msg)
 
   odom_msg.twist.twist.angular.x = imu1_msg.angular_velocity.x;
   odom_msg.twist.twist.angular.y = imu1_msg.angular_velocity.y;
-  odom_msg.twist.twist.angular.z = imu1_msg.angular_velocity.z;
+  */
 
+  if(heading_lock_) {
+    odom_msg.vx = msg->uvw[0];
+    odom_msg.vy = msg->uvw[1];
+    odom_msg.r = -imu1_msg.angular_velocity.z;
+  } else {
+    odom_msg.vx = sqrt(pow(msg->uvw[0], 2) + pow(msg->uvw[1],2));
+    odom_msg.vy = 0;
+    odom_msg.r = -imu1_msg.angular_velocity.z;
+  }
+
+  /*
   if (publishTf)
   {
     // Calculate the TF from the pose...
@@ -461,6 +473,7 @@ void InertialSenseROS::INS2_callback(const ins_2_t * const msg)
 
     br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "ins", "ins_base_link"));
   }
+  */
 
   if (INS_.enabled)
     INS_.pub.publish(odom_msg);

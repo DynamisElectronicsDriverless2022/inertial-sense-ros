@@ -26,7 +26,7 @@
 #include "inertial_sense_ros/GNSSObservation.h"
 #include "inertial_sense_ros/GNSSObsVec.h"
 #include "inertial_sense_ros/INL2States.h"
-#include "nav_msgs/Odometry.h"
+#include "dynamis_common_msgs/State.h"
 #include "std_srvs/Trigger.h"
 #include "std_msgs/Header.h"
 #include "std_msgs/Bool.h"
@@ -214,7 +214,7 @@ public:
   double lla_[3];
   double ecef_[3];
   sensor_msgs::Imu imu1_msg, imu2_msg;
-  nav_msgs::Odometry odom_msg;
+  dynamis_common_msgs::State odom_msg;
   inertial_sense_ros::GPS gps_msg; 
   geometry_msgs::Vector3Stamped gps_velEcef;
   inertial_sense_ros::GPSInfo gps_info_msg;

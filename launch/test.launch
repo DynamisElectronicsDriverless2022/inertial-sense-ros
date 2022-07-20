@@ -1,7 +1,7 @@
   <launch>
 	<rosparam subst_value="True">
 
-    inertial_sense_node: { port: "/dev/ttyACM0",
+    inertial_sense_node: { port: "/dev/serial/by-id/usb-Inertial_Sense_uINS-if00",
                            baud: 921600,
                            dual_GNSS: true,
                            navigation_dt_ms: 10,
@@ -15,7 +15,7 @@
                            inclination: 1.14878541071,
                            declination: 0.20007290992,
                            dynamic_model: 8,
-                           INS_rpy_radians: [0, 0 0],
+                           INS_rpy_radians: [3.14159, 0, 1.57079],
                            INS_xyz: [0, 0, 0],
                            GPS_ant1_xyz: [0, -0.2, -1],
                            GPS_ant2_xyz: [0, 0.60, -0.55]
